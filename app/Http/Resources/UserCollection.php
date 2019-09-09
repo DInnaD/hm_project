@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 class UserCollection extends ResourceCollection
 {
 
-    // public $collects = 'App\Http\Resources\UserCollection';
+    public $collects = 'App\Http\Resources\UserResource';
     /**
      * Transform the resource collection into an array.
      *
@@ -17,7 +17,7 @@ class UserCollection extends ResourceCollection
     public function toArray($request)
     {
         return [
-            'succes' => true,
+            'success' => true,
             'data' => $this->collection,
         ];
     }

@@ -55,4 +55,5 @@ Route::post('logout', 'Auth\LoginController@logout');
 //     });
 // });
 
-Route::resource('user', 'UserController')->only(['index', 'show', 'update', 'destroy']);
+Route::apiResource('user', 'UserController')->except('store');
+Route::apiResource('organization', 'OrganizationController');

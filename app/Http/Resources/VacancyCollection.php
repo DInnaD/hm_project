@@ -6,6 +6,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class VacancyCollection extends ResourceCollection
 {
+    public $collects = 'App\Http\Resources\VacancyResource';
+
     /**
      * Transform the resource collection into an array.
      *

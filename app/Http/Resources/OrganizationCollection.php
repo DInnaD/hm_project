@@ -6,6 +6,8 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class OrganizationCollection extends ResourceCollection
 {
+
+    public $collects = 'App\Http\Resources\OrganizationResource';
     /**
      * Transform the resource collection into an array.
      *
@@ -16,7 +18,7 @@ class OrganizationCollection extends ResourceCollection
     {
         return [
             'success' => true,
-            'data' => $this,
+            'data' => $this->collection,
         ];
     }
 }
