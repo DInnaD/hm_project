@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Vacancy\VacancyBookRequest;
+use App\Http\Requests\Vacancy\VacancyStoreRequest;
+use App\Http\Requests\Vacancy\VacancyUpdateRequest;
 use App\Http\Resources\VacancyCollection;
 use App\Http\Resources\VacancyResource;
 use App\Models\Vacancy;
@@ -18,9 +21,7 @@ class VacancyController extends Controller
 
         $vacancies = $vacancies->filter(function ($value) use ($only_active) {
             if ($only_active != "false") {
-                if ($value->workers_booked < $value->workers_amount) {
-                    return $value;
-                }
+                if ($value->workers_booked < $value->workers_amount) return $value;
             } else {
                 return $value;
             }
@@ -28,7 +29,7 @@ class VacancyController extends Controller
         return new VacancyCollection($vacancies);
     }
 
-    public function store(Request $request)
+    public function store(VacancyStoreRequest $request)
     {
         $vacancy = Vacancy::create($request->all());
 
@@ -45,7 +46,7 @@ class VacancyController extends Controller
         return new VacancyResource($vacancy);
     }
 
-    public function update(Request $request, Vacancy $vacancy)
+    public function update(VacancyUpdateRequest $request, Vacancy $vacancy)
     {
         $vacancy->update($request->all());
 
@@ -59,7 +60,7 @@ class VacancyController extends Controller
         return new VacancyResource($vacancy);
     }
 
-    public function book(Request $request)
+    public function book(VacancyBookRequest $request)
     {
         $id = Auth::guard('api')->id();
         $user_id = $request->post('user_id');
@@ -68,7 +69,6 @@ class VacancyController extends Controller
         if ($id !== $user_id) abort(404);
 
         $vacancy = Vacancy::find($vacancy_id);
-
         $vacancy->workers()->attach($user_id);
 
         return response()->json([
@@ -76,7 +76,7 @@ class VacancyController extends Controller
         ], 200);
     }
 
-    public function unbook(Request $request)
+    public function unbook(VacancyBookRequest $request)
     {
         $id = Auth::guard('api')->id();
         $user_id = $request->post('user_id');
@@ -85,7 +85,6 @@ class VacancyController extends Controller
         if ($id !== $user_id) abort(404, 'error');
 
         $vacancy = Vacancy::find($vacancy_id);
-
         $vacancy->workers()->detach($user_id);
 
         return response()->json([

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Organization\OrganizationStoreRequest;
+use App\Http\Requests\Organization\OrganizationUpdateRequest;
 use App\Http\Resources\OrganizationCollection;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
@@ -12,21 +14,14 @@ class OrganizationController extends Controller
     public function index()
     {
         $organizations = Organization::with(['user'])->get();
-        // return response()->json([
-        //     'success' => true,
-        //     'data' => $organizations
-        // ], 200);
 
         return new OrganizationCollection($organizations);
     }
 
-    public function store(Request $request)
+    public function store(OrganizationStoreRequest $request)
     {
         $organization = Organization::create($request->all());
-        // return response()->json([
-        //     'success' => true,
-        //     'data' => $organization
-        // ], 201);
+
         return new OrganizationResource($organization);
     }
 
@@ -40,13 +35,13 @@ class OrganizationController extends Controller
         $organization = $organization->load(['creator', 'vacancies' => function ($query) {
             $query->withCount(['workers AS workers_booked'])->get();
         }]);
+
         $organization->vacancies->each(function ($value) {
-            if ($value->workers_booked < $value->workers_amount) {
-                $value->status = 'active';
-            }
+            ($value->workers_booked < $value->workers_amount) ? $value->status = 'active' : $value->status = 'closed';
         });
 
         $organization->_vacancies = $_vacancies;
+
         // validation requests
         if (isset($_vacancies) and $_vacancies != 0) {
             $vacancies = $organization->vacancies;
@@ -77,22 +72,17 @@ class OrganizationController extends Controller
         return new OrganizationResource($organization);
     }
 
-    public function update(Request $request, Organization $organization)
+    public function update(OrganizationUpdateRequest $request, Organization $organization)
     {
         $organization->update($request->all());
-        // return response()->json([
-        //     'success' => true,
-        //     'data' => $organization
-        // ], 202);
+
         return new OrganizationResource($organization);
     }
 
     public function destroy(Organization $organization)
     {
         $organization->delete();
-        // return response()->json([
-        //     'success' => true,
-        // ], 204);
+
         return new OrganizationResource($organization);
     }
 }
