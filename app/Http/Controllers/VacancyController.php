@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\user_vacancy;
+use App\Http\Resources\VacancyCollection;
+use App\Http\Resources\VacancyResource;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,86 +15,81 @@ class VacancyController extends Controller
         $only_active = $request->get('only_active');
 
         $vacancies = Vacancy::withCount(['workers AS workers_booked'])->get();
-        $vacancies->each(function($value){
-            $value->organization = $value->company->title;
-            $value->makeHidden('company');
-        });
 
-        if ($only_active != "false") {
-            foreach ($vacancies as $key => $vacancy) {
-                if ($vacancy->workers_booked >= $vacancy->workers_amount) {
-                    unset($vacancies[$key]);
+        $vacancies = $vacancies->filter(function ($value) use ($only_active) {
+            if ($only_active != "false") {
+                if ($value->workers_booked < $value->workers_amount) {
+                    return $value;
                 }
+            } else {
+                return $value;
             }
-        }
-
-        return response()->json([
-            'succes' => true,
-            'data' => $vacancies
-        ], 200);
+        });
+        return new VacancyCollection($vacancies);
     }
 
     public function store(Request $request)
     {
         $vacancy = Vacancy::create($request->all());
-        return response()->json([
-            'succes' => true,
-            'data' => $vacancy
-        ], 201);
+
+        return new VacancyResource($vacancy);
     }
 
     public function show(Vacancy $vacancy)
     {
-        $vacancy->load(['workers'])->makeHidden('company');
-        $vacancy->organization = $vacancy->company->title;
+        $vacancy->load(['workers']);
+
         $vacancy->workers_booked = count($vacancy->workers()->get());
-        $vacancy->status = 'active';
-        if ($vacancy->workers_amount <= $vacancy->workers_booked) {
-            $vacancy->status = 'closed';
-        }
-        return response()->json([
-            'succes' => true,
-            'data' => $vacancy
-        ], 200);
+        $vacancy->_workers = true;
+
+        return new VacancyResource($vacancy);
     }
 
     public function update(Request $request, Vacancy $vacancy)
     {
         $vacancy->update($request->all());
-        return response()->json([
-            'succes' => true,
-            'data' => $vacancy
-        ], 200);
+
+        return new VacancyResource($vacancy);
     }
 
     public function destroy(Vacancy $vacancy)
     {
         $vacancy->delete();
-        return response()->json([
-            'succes' => true,
-            'data' => $vacancy
-        ], 204);
+
+        return new VacancyResource($vacancy);
     }
 
-    public function book(Vacancy $vacancy)
+    public function book(Request $request)
     {
-        $user_id = Auth::guard('api')->id();
-        $vacancy_id = $vacancy->id;
-        $user_vacancy = user_vacancy::create(['user_id' => $user_id, 'vacancy_id' => $vacancy_id]);
+        $id = Auth::guard('api')->id();
+        $user_id = $request->post('user_id');
+        $vacancy_id = $request->post('vacancy_id');
+
+        if ($id !== $user_id) abort(404);
+
+        $vacancy = Vacancy::find($vacancy_id);
+
+        $vacancy->workers()->attach($user_id);
+
         return response()->json([
             'succes' => true,
-            'data' => $user_vacancy
         ], 200);
     }
 
-    public function unbook(Vacancy $vacancy)
+    public function unbook(Request $request)
     {
-        $user_id = Auth::guard('api')->id();
-        $vacancy_id = $vacancy->id;
-        $user_vacancy = user_vacancy::where(['user_id' => $user_id, 'vacancy_id' => $vacancy_id])->first();
+        $id = Auth::guard('api')->id();
+        $user_id = $request->post('user_id');
+        $vacancy_id = $request->post('vacancy_id');
+
+        if ($id !== $user_id) abort(404, 'error');
+
+        $vacancy = Vacancy::find($vacancy_id);
+
+        $vacancy->workers()->detach($user_id);
+
         return response()->json([
             'succes' => true,
-            'data' => $user_vacancy->delete()
-        ], 204);
+        ], 200);
     }
 }
