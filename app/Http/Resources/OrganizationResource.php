@@ -22,10 +22,6 @@ class OrganizationResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'creator' => new UserResource($this->creator),
-            // 'vacancies' => VacancyResource::collection($this->vacancies),
-            // if(isset($this->workers)){
-            // 'workers' => $this->workers,
-            // }
         ];
         if (isset($this->_vacancies) and $this->_vacancies != 0) {
             $data['vacancies'] = $this->vacancies;

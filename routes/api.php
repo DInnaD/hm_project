@@ -29,4 +29,8 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::apiResource('vacancy', 'VacancyController');
     Route::post('vacancy-book', 'VacancyController@book');
     Route::post('vacancy-unbook', 'VacancyController@unbook');
+
+    Route::get('stats/user', 'StatsController@users');
+    Route::get('stats/vacancy', 'StatsController@Vacancies');
+    Route::get('stats/organization', 'StatsController@organizations');
 });
