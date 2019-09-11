@@ -23,6 +23,6 @@ class Vacancy extends Model
 
     public function workers()
     {
-        return $this->belongsToMany('App\Models\User', 'user_vacancies');
+        return $this->belongsToMany('App\Models\User', 'user_vacancies')->withPivot('user_id', 'vacancy_id');
     }
 }

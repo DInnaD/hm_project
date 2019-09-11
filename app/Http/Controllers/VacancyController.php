@@ -8,6 +8,7 @@ use App\Http\Requests\Vacancy\VacancyUpdateRequest;
 use App\Http\Resources\VacancyCollection;
 use App\Http\Resources\VacancyResource;
 use App\Models\Organization;
+use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,17 +78,31 @@ class VacancyController extends Controller
 
     public function book(VacancyBookRequest $request)
     {
+        
         $id = Auth::guard('api')->id();
         $user_id = $request->post('user_id');
         $vacancy_id = $request->post('vacancy_id');
 
         if ($id !== $user_id) $this->authorize('book', Vacancy::class);
+        // $user = User::find($id)->vacancies
 
         $vacancy = Vacancy::find($vacancy_id);
+        $workers = $vacancy->workers;
+
+        foreach ($workers as $worker){
+            if($worker->id == $id){
+                return response()->json([
+                    'succes' => false,
+                    'error' => 'Already booked.'
+                ], 200);
+            }
+        }
+
         $vacancy->workers()->attach($user_id);
 
         return response()->json([
             'succes' => true,
+            // 'data' => $pivot
         ], 200);
     }
 

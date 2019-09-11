@@ -35,6 +35,6 @@ class User extends Authenticatable
     }
 
     public function vacancies(){
-        return $this->belongsToMany('App\Models\Vacancy', 'user_vacancies');
+        return $this->belongsToMany('App\Models\Vacancy', 'user_vacancies')->withPivot('user_id', 'vacancy_id');
     }
 }
