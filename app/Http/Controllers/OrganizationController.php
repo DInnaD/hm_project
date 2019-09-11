@@ -8,25 +8,35 @@ use App\Http\Resources\OrganizationCollection;
 use App\Http\Resources\OrganizationResource;
 use App\Models\Organization;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrganizationController extends Controller
 {
     public function index()
     {
-        $organizations = Organization::with(['user'])->get();
+        $this->authorize('index', Organization::class);
+
+        (Auth::guard('api')->user()->role == 'admin') ? $organizations = Organization::with(['user'])->get() : $organizations = Organization::where('user_id', Auth::guard('api')->id())->with(['user'])->get();
 
         return new OrganizationCollection($organizations);
     }
 
     public function store(OrganizationStoreRequest $request)
     {
-        $organization = Organization::create($request->all());
+        $this->authorize('create', Organization::class);
+
+        $data = $request->all();
+        $data['user_id'] = Auth::guard('api')->id();
+
+        $organization = Organization::create($data);
 
         return new OrganizationResource($organization);
     }
 
     public function show(Request $request, Organization $organization)
     {
+        $this->authorize('show', $organization);
+
         // get requests
         $_vacancies = $request->get('vacancies');
         $_workers = $request->get('workers');
@@ -44,6 +54,9 @@ class OrganizationController extends Controller
 
         // validation requests
         if (isset($_vacancies) and $_vacancies != 0) {
+
+            $this->authorize('showParams', $organization);
+
             $vacancies = $organization->vacancies;
             foreach ($vacancies as $key => $vacancy) {
                 if ($_vacancies == 1) {
@@ -74,6 +87,8 @@ class OrganizationController extends Controller
 
     public function update(OrganizationUpdateRequest $request, Organization $organization)
     {
+        $this->authorize('update', $organization);
+
         $organization->update($request->all());
 
         return new OrganizationResource($organization);
@@ -81,6 +96,8 @@ class OrganizationController extends Controller
 
     public function destroy(Organization $organization)
     {
+        $this->authorize('delete', $organization);
+
         $organization->delete();
 
         return new OrganizationResource($organization);

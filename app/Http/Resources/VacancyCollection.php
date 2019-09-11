@@ -16,7 +16,7 @@ class VacancyCollection extends ResourceCollection
      */
     public function toArray($request)
     {
-        return parent::toArray($request);return [
+        Array($request);return [
             'success' => true,
             'data' => $this->collection,
         ];

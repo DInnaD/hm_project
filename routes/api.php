@@ -21,8 +21,12 @@ Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::post('logout', 'Auth\LoginController@logout');
 
-Route::apiResource('user', 'UserController')->except('store');
-Route::apiResource('organization', 'OrganizationController');
-Route::apiResource('vacancy', 'VacancyController');
-Route::post('vacancy-book', 'VacancyController@book');
-Route::post('vacancy-unbook', 'VacancyController@unbook');
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::apiResource('user', 'UserController')->except('store');
+
+    Route::apiResource('organization', 'OrganizationController');
+
+    Route::apiResource('vacancy', 'VacancyController');
+    Route::post('vacancy-book', 'VacancyController@book');
+    Route::post('vacancy-unbook', 'VacancyController@unbook');
+});
