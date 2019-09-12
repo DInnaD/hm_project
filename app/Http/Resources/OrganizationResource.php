@@ -19,8 +19,8 @@ class OrganizationResource extends JsonResource
             'title' => $this->title,
             'city' => $this->city,
             'country' => $this->country,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString(),
             'creator' => new UserResource($this->creator),
         ];
         if (isset($this->_vacancies) and $this->_vacancies != 0) {

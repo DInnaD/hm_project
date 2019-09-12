@@ -23,7 +23,8 @@ class VacancyPolicy
 
     public function before($user, $ability)
     {
-        if ($user->role === 'admin') {
+        // if ($ability == 'create' && $user->role == 'employer') {
+        if ($user->role === 'admin' && $ability != 'book') {
             return true;
         };
     }

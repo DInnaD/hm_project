@@ -22,8 +22,8 @@ class VacancyResource extends JsonResource
             'workers_booked' => $this->workers_booked,
             'organization' => $this->organization->title,
             'salary' => $this->salary,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at->toDateTimeString(),
+            'updated_at' => $this->updated_at->toDateTimeString(),
         ];
 
         if($this->_workers){

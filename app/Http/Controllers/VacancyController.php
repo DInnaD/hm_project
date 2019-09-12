@@ -8,7 +8,6 @@ use App\Http\Requests\Vacancy\VacancyUpdateRequest;
 use App\Http\Resources\VacancyCollection;
 use App\Http\Resources\VacancyResource;
 use App\Models\Organization;
-use App\Models\User;
 use App\Models\Vacancy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -84,7 +83,6 @@ class VacancyController extends Controller
         $vacancy_id = $request->post('vacancy_id');
 
         if ($id !== $user_id) $this->authorize('book', Vacancy::class);
-        // $user = User::find($id)->vacancies
 
         $vacancy = Vacancy::find($vacancy_id);
         $workers = $vacancy->workers;
@@ -102,7 +100,6 @@ class VacancyController extends Controller
 
         return response()->json([
             'succes' => true,
-            // 'data' => $pivot
         ], 200);
     }
 

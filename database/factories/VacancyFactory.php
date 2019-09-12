@@ -9,7 +9,7 @@ use Faker\Generator as Faker;
 $factory->define(Vacancy::class, function (Faker $faker) {
     return [
         'vacancy_name' => $faker->jobTitle,
-        'workers_amount' => $faker->numberBetween(3, 20),
+        'workers_amount' => $faker->numberBetween(2, 10),
         'salary' => $faker->numberBetween(300, 1500),
         'organization_id' => $faker->numberBetween(1, 20),
     ];

@@ -14,7 +14,6 @@ class UserController extends Controller
     {
         $this->authorize('index', User::class);
 
-
         $search = $request->get('search');
 
         $users = User::where('first_name', 'like', "%{$search}%")
@@ -47,7 +46,7 @@ class UserController extends Controller
         $this->authorize('delete', $user);
 
         $user->delete();
-        
+
         return new UserResource($user);
     }
 }

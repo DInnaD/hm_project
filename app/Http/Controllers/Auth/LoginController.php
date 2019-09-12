@@ -41,6 +41,9 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
+        if($request->all()['email'] == 'admin@localhost'){
+
+        }
         $this->validateLogin($request);
 
         if ($this->attemptLogin($request)) {

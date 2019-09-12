@@ -18,6 +18,9 @@ class CreateUserVacanciesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('vacancy_id');
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['user_id', 'vacancy_id']);
         });
     }
 

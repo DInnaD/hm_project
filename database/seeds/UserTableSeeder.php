@@ -12,6 +12,17 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
+        $admin = [
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'role' => 'admin',
+            'country' => 'USA',
+            'city' => 'NY',
+            'phone' => '555-5555-520',
+            'email' => 'admin@localhost',
+            'password' => Hash::make(123456)
+        ];
+        User::create($admin);
         factory(User::class, 100)->create();
     }
 }
