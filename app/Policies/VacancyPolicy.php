@@ -23,20 +23,23 @@ class VacancyPolicy
 
     public function before($user, $ability)
     {
-        // if ($ability == 'create' && $user->role == 'employer') {
-        if ($user->role === 'admin' && $ability != 'book') {
+        if ($user->role === 'admin') {
             return true;
         };
     }
 
     public function index(User $user)
     {
-        return $user->role === 'admin';
+        $only_active = request()->get('only_active');
+        return $only_active === 'false';
     }
 
-    public function create()
+    public function create(User $user)
     {
-        return false;
+        $organization_id = request()->post('organization_id');
+        $organization = Organization::where('id', $organization_id)->first();
+
+        return $organization->user_id === $user->id;
     }
 
     public function update(User $user, Vacancy $vacancy)
@@ -49,8 +52,10 @@ class VacancyPolicy
         return $user->id === $vacancy->organization->user_id;
     }
 
-    public function book()
+    public function book(User $user)
     {
-        return false;
+        $user_id = request()->post('user_id');
+
+        return $user_id === $user->id;
     }
 }

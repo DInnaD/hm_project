@@ -24,13 +24,10 @@ class OrganizationPolicy
 
     public function before($user, $ability)
     {
-        if ($ability == 'create' && $user->role == 'employer') {
-            return true;
-        } elseif ($ability == 'create' && $user->role != 'employer') {
-            return false;
-        };
-        if ($user->role == 'admin') {
-            return true;
+        if ($ability !== 'create'){
+            if ($user->role === 'admin') {
+                return true;
+            }
         }
     }
 
@@ -39,14 +36,13 @@ class OrganizationPolicy
         return $user->role !== 'worker';
     }
 
-    public function show(User $user)
+    public function show(User $user, Organization $organization)
     {
-        return $user->role !== 'worker';
-    }
-
-    public function showParams(User $user, Organization $organization)
-    {
-        return $user->id === $organization->user_id;
+        if ($user->role === 'employer' && $user->id === $organization->user_id) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public function update(User $user, Organization $organization)

@@ -16,6 +16,8 @@ class VacancyController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('index', Vacancy::class);
+
         $only_active = $request->get('only_active');
 
         $vacancies = Vacancy::withCount(['workers AS workers_booked'])->get();
@@ -24,7 +26,6 @@ class VacancyController extends Controller
             if ($only_active != "false") {
                 if ($value->workers_booked < $value->workers_amount) return $value;
             } else {
-                $this->authorize('index', Vacancy::class);
                 return $value;
             }
         });
@@ -33,12 +34,9 @@ class VacancyController extends Controller
 
     public function store(VacancyStoreRequest $request)
     {
-        $data = $request->validated();
-        $organization = Organization::where('id', $data['organization_id'])->first();
+        $this->authorize('create', Vacancy::class);
 
-        if ($organization->user_id != Auth::guard('api')->id()) $this->authorize('create', Vacancy::class);
-
-        $vacancy = Vacancy::create($data);
+        $vacancy = Vacancy::create($request->validated());
 
         return new VacancyResource($vacancy);
     }
@@ -50,7 +48,6 @@ class VacancyController extends Controller
 
         $vacancy->workers_booked = count($vacancy->workers()->get());
         if (Auth::guard('api')->user()->role !== 'worker') {
-            // $this->authorize('show', $vacancy);
             $vacancy->_workers = true;
         }
 
@@ -77,12 +74,11 @@ class VacancyController extends Controller
 
     public function book(VacancyBookRequest $request)
     {
+        $this->authorize('book',Vacancy::class);
         
         $id = Auth::guard('api')->id();
         $user_id = $request->post('user_id');
         $vacancy_id = $request->post('vacancy_id');
-
-        if ($id !== $user_id) $this->authorize('book', Vacancy::class);
 
         $vacancy = Vacancy::find($vacancy_id);
         $workers = $vacancy->workers;
@@ -105,11 +101,10 @@ class VacancyController extends Controller
 
     public function unbook(VacancyBookRequest $request)
     {
-        $id = Auth::guard('api')->id();
+        $this->authorize('book',Vacancy::class);
+
         $user_id = $request->post('user_id');
         $vacancy_id = $request->post('vacancy_id');
-
-        if ($id !== $user_id) $this->authorize('book', Vacancy::class);
         
         $vacancy = Vacancy::find($vacancy_id);
         $vacancy->workers()->detach($user_id);

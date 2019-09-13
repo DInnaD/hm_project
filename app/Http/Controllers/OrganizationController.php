@@ -55,8 +55,6 @@ class OrganizationController extends Controller
         // validation requests
         if (isset($_vacancies) and $_vacancies != 0) {
 
-            $this->authorize('showParams', $organization);
-
             $vacancies = $organization->vacancies;
             foreach ($vacancies as $key => $vacancy) {
                 if ($_vacancies == 1) {
