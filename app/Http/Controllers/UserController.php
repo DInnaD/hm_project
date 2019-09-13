@@ -36,7 +36,7 @@ class UserController extends Controller
     {
         $this->authorize('update', $user);
 
-        $user->update($request->all());
+        $user->update($request->validated());
 
         return new UserResource($user);
     }

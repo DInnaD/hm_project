@@ -25,7 +25,7 @@ class OrganizationController extends Controller
     {
         $this->authorize('create', Organization::class);
 
-        $data = $request->all();
+        $data = $request->validated();
         $data['user_id'] = Auth::guard('api')->id();
 
         $organization = Organization::create($data);
@@ -89,7 +89,7 @@ class OrganizationController extends Controller
     {
         $this->authorize('update', $organization);
 
-        $organization->update($request->all());
+        $organization->update($request->validated());
 
         return new OrganizationResource($organization);
     }

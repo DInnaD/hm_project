@@ -33,7 +33,7 @@ class VacancyController extends Controller
 
     public function store(VacancyStoreRequest $request)
     {
-        $data = $request->all();
+        $data = $request->validated();
         $organization = Organization::where('id', $data['organization_id'])->first();
 
         if ($organization->user_id != Auth::guard('api')->id()) $this->authorize('create', Vacancy::class);
@@ -61,7 +61,7 @@ class VacancyController extends Controller
     {
         $this->authorize('update', $vacancy);
 
-        $vacancy->update($request->all());
+        $vacancy->update($request->validated());
 
         return new VacancyResource($vacancy);
     }
